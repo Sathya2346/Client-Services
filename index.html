@@ -1,2 +1,97 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Client Services</title></head><body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Client Services</title>
+  <script src="https://emoji.fluent-cdn.com/latest/fluentemoji.min.js" crossorigin="anonymous"></script>
+  <style>
+    .visual-icon{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto;line-height:1}
+    .visual-icon img,.emoji{display:block!important;object-fit:contain!important}
+    aside nav button .visual-icon{width:40px;height:40px;margin-right:7px}
+    aside nav button .visual-icon img{width:40px;height:40px}
+    .sidebar-bottom .visual-icon{width:30px;height:30px;margin-right:8px}
+    .sidebar-bottom .visual-icon img{width:30px;height:30px}
+    .stat-icon .visual-icon{width:56px;height:56px}
+    .stat-icon .visual-icon img{width:56px;height:56px}
+    .service-icon .emoji{width:54px!important;height:54px!important;margin:0!important}
+    .booking-form-service .service-icon .emoji{width:46px!important;height:46px!important}
+    .header-profile .avatar.visual-avatar{background-image:none!important;background-color:transparent!important;color:transparent!important}
+    .header-profile .avatar.visual-avatar img{width:48px;height:48px;object-fit:contain}
+    .tech-card .avatar.visual-avatar img{width:54px;height:54px;object-fit:contain}
+    .person .avatar.visual-avatar img,.today-row .avatar.visual-avatar img,.job-customer .avatar.visual-avatar img{width:42px;height:42px;object-fit:contain}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <script>
+    (function(){
+      const iconMap={
+        'Dashboard':'📊','Bookings':'📅','Customers':'👥','Technicians':'👨‍🔧','Services':'🧰','Payments':'💰','Reviews':'⭐','Reports':'📈','Settings':'⚙️',
+        'My Jobs':'🧰','Schedule':'🗓️','Earnings':'💰','Profile':'🧑','Notifications':'🔔','Sign Out':'🚪'
+      };
+      const statMap={
+        'Total Bookings':'📅','Completed':'✅','Pending':'⏳','In Progress':'🛠️','Total Customers':'👥','Active Customers':'🧑‍🤝‍🧑','New This Month':'🗓️','Retention Rate':'❤️',
+        'Total Technicians':'👨‍🔧','Total':'📊','On Job':'🛠️','Available':'🟢','Offline':'😴','Total Services':'🧰','Active Services':'✅','Categories':'🗂️',
+        'Total Revenue':'💰','Paid':'💳','Pending Amount':'⏳','Refunded':'↩️','Completed Payments':'✅','Refunded Amount':'↩️','Average Rating':'⭐','Customer Growth':'📈'
+      };
+      function emojiImg(emoji){
+        const span=document.createElement('span');
+        span.className='visual-icon';
+        span.setAttribute('data-visual-icon','1');
+        span.textContent=emoji;
+        return span;
+      }
+      function replaceSvg(container,emoji){
+        if(!container||container.querySelector('[data-visual-icon]')) return;
+        const svg=container.querySelector(':scope > svg');
+        if(svg) svg.replaceWith(emojiImg(emoji));
+      }
+      function visualAvatars(){
+        document.querySelectorAll('.avatar:not(.visual-avatar)').forEach(a=>{
+          const img=document.createElement('span');
+          img.className='visual-icon visual-avatar';
+          img.setAttribute('data-visual-avatar','1');
+          let emoji='🧑';
+          if(a.closest('.tech-card')) emoji='👨‍🔧';
+          else if(a.closest('.header-profile')){
+            const role=(a.closest('.header-profile').querySelector('small')||{}).textContent||'';
+            emoji=role.includes('Administrator')?'🧑‍💼':role.includes('Technician')?'👨‍🔧':'👩‍💼';
+          } else if(a.closest('.job-customer')) emoji='🧑';
+          img.textContent=emoji;
+          a.classList.add('visual-avatar');
+          a.replaceChildren(img);
+        });
+      }
+      function updateVisuals(){
+        document.querySelectorAll('aside nav button').forEach(btn=>{
+          const label=(btn.querySelector('span')||{}).textContent?.trim();
+          if(iconMap[label]) replaceSvg(btn,iconMap[label]);
+        });
+        document.querySelectorAll('.sidebar-bottom button').forEach(btn=>{
+          const label=(btn.querySelector('span')||{}).textContent?.trim();
+          if(iconMap[label]) replaceSvg(btn,iconMap[label]);
+        });
+        document.querySelectorAll('.stat').forEach(stat=>{
+          const label=(stat.querySelector('span')||{}).textContent?.trim();
+          if(statMap[label]) replaceSvg(stat.querySelector('.stat-icon'),statMap[label]);
+        });
+        const bellMap=['.header-right .icon-btn'];
+        bellMap.forEach(sel=>document.querySelectorAll(sel).forEach(btn=>replaceSvg(btn,'🔔')));
+        visualAvatars();
+        if(window.fluentemoji){
+          fluentemoji.parse('.service-icon');
+          fluentemoji.parse('.booking-form-service');
+          fluentemoji.parse('.page-title');
+        }
+      }
+      const observer=new MutationObserver(updateVisuals);
+      observer.observe(document.body,{childList:true,subtree:true});
+      window.addEventListener('load',updateVisuals);
+      setTimeout(updateVisuals,150);
+      setTimeout(updateVisuals,700);
+    })();
+  </script>
+</body>
+</html>
