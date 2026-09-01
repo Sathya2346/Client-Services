@@ -17,9 +17,9 @@
     .service-icon .emoji{width:54px!important;height:54px!important;margin:0!important}
     .booking-form-service .service-icon .emoji{width:46px!important;height:46px!important}
     .header-profile .avatar.visual-avatar{background-image:none!important;background-color:transparent!important;color:transparent!important}
-    .header-profile .avatar.visual-avatar img{width:48px;height:48px;object-fit:contain}
-    .tech-card .avatar.visual-avatar img{width:54px;height:54px;object-fit:contain}
-    .person .avatar.visual-avatar img,.today-row .avatar.visual-avatar img,.job-customer .avatar.visual-avatar img{width:42px;height:42px;object-fit:contain}
+    .header-profile .avatar.visual-avatar .emoji{width:48px;height:48px;object-fit:contain}
+    .tech-card .avatar.visual-avatar .emoji{width:54px;height:54px;object-fit:contain}
+    .person .avatar.visual-avatar .emoji,.today-row .avatar.visual-avatar .emoji,.job-customer .avatar.visual-avatar .emoji{width:42px;height:42px;object-fit:contain}
   </style>
 </head>
 <body>
@@ -58,11 +58,17 @@
           else if(a.closest('.header-profile')){
             const role=(a.closest('.header-profile').querySelector('small')||{}).textContent||'';
             emoji=role.includes('Administrator')?'🧑‍💼':role.includes('Technician')?'👨‍🔧':'👩‍💼';
-          } else if(a.closest('.job-customer')) emoji='🧑';
+          }
           img.textContent=emoji;
           a.classList.add('visual-avatar');
           a.replaceChildren(img);
         });
+      }
+      function parseVisuals(){
+        if(!window.fluentemoji) return;
+        fluentemoji.parse('.visual-icon');
+        fluentemoji.parse('.service-icon');
+        fluentemoji.parse('.booking-form-service');
       }
       function updateVisuals(){
         document.querySelectorAll('aside nav button').forEach(btn=>{
@@ -77,16 +83,11 @@
           const label=(stat.querySelector('span')||{}).textContent?.trim();
           if(statMap[label]) replaceSvg(stat.querySelector('.stat-icon'),statMap[label]);
         });
-        const bellMap=['.header-right .icon-btn'];
-        bellMap.forEach(sel=>document.querySelectorAll(sel).forEach(btn=>replaceSvg(btn,'🔔')));
+        document.querySelectorAll('.header-right .icon-btn').forEach(btn=>replaceSvg(btn,'🔔'));
         visualAvatars();
-        if(window.fluentemoji){
-          fluentemoji.parse('.service-icon');
-          fluentemoji.parse('.booking-form-service');
-          fluentemoji.parse('.page-title');
-        }
+        parseVisuals();
       }
-      const observer=new MutationObserver(updateVisuals);
+      const observer=new MutationObserver(()=>{clearTimeout(window.__visualTimer);window.__visualTimer=setTimeout(updateVisuals,20)});
       observer.observe(document.body,{childList:true,subtree:true});
       window.addEventListener('load',updateVisuals);
       setTimeout(updateVisuals,150);
